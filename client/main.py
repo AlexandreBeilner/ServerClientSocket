@@ -1,9 +1,10 @@
-import socket
+from modules.connection import Connection
 
 
 def main():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('127.0.0.1', 8080))
+    connection = Connection('localhost', 3000)
+    connection.connect()
+    connection.start()
 
 
 if __name__ == '__main__':
