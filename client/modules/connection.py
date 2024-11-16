@@ -1,6 +1,7 @@
 import socketio
 from modules.events import Events
 
+
 class Connection:
     def __init__(self, route, port, ui):
         self.sio = socketio.Client()

@@ -1,14 +1,18 @@
 import os
-from tkinter import *
+from tkinter import LEFT, BOTTOM, END
 from modules.connection import Connection
+from modules.window import Window
 
 
 class UI:
     def __init__(self):
         self.sio = None
+
         self.name_entry = None
         self.password_entry = None
-        self.window = Tk()
+
+        self.window = Window()
+
         self.input_entry = None
         self.name = None
         self.password = None
@@ -18,40 +22,29 @@ class UI:
         self.start_registration_screen()
 
     def start_registration_screen(self):
-        self.window.geometry('400x300')
-        self.window.title("Conectar ao Chat")
+        self.window.setup("Conectar ao Chat", "400x300")
 
-        name_label = Label(self.window, text="Nome:", font=('Helvetica', 14))
-        name_label.pack(pady=10)
+        self.window.label("Nome:", pady=10)
+        self.name_entry = self.window.input(pady=5)
 
-        self.name_entry = Entry(self.window, font=('Helvetica', 14))
-        self.name_entry.pack(pady=5)
+        self.window.label("Senha:", pady=10)
+        self.password_entry = self.window.input(pady=5)
 
-        password_label = Label(self.window, text="Senha:", font=('Helvetica', 14))
-        password_label.pack(pady=10)
+        self.window.button("Conectar", self.on_connect, pady=10)
 
-        self.password_entry = Entry(self.window, font=('Helvetica', 14), show="*")
-        self.password_entry.pack(pady=5)
-
-        connect_button = Button(self.window, text="Conectar", font=('Helvetica', 14), command=self.on_connect)
-        connect_button.pack(pady=20)
-        self.window.mainloop()
+        self.window.start()
 
     def start_chat_screen(self):
-        self.window = Tk()
-        self.window.geometry('800x800')
-        self.window.title("Trabalho Moreto")
+        self.window.create()
+        self.window.setup("Chat", "800x600", background='black')
 
-        image_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../assets/images.png'))
-
-        icon = PhotoImage(file=image_path)
-        self.window.iconphoto(True, icon)
-
-        self.window.config(background='black')
+        image_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                  '../../assets/images.png'))
+        self.window.set_icon(True, image_path)
 
         self.add_input()
 
-        self.window.mainloop()
+        self.window.start()
 
     def on_connect(self):
         self.name = self.name_entry.get()
@@ -60,30 +53,40 @@ class UI:
         self.connection.connect(self.password)
         self.sio = self.connection.get_sio()
 
-        self.window.destroy()
+        self.window.stop()
         self.start_chat_screen()
         self.connection.start()
 
     def add_message(self, user, message, color='green'):
-        frame = Frame(self.window, bg="black")
-        frame.pack(pady=8, fill='x', padx=10)
-
-        text_user = Label(frame, text=user + ': ', font=('Helvetica', 14), fg=color, bg="black", anchor='w')
-        text_user.pack(side=LEFT)
-
-        text_message = Label(frame, text=message, font=('Helvetica', 14), fg="white", bg="black", anchor='w')
-        text_message.pack(side=LEFT)
+        frame = self.window.frame(bg='black', padx=10, pady=10)
+        self.window.label(user + ': ',
+                          fg=color,
+                          bg='black',
+                          frame=frame,
+                          side=LEFT)
+        self.window.label(message,
+                          fg='white',
+                          bg='black',
+                          frame=frame,
+                          side=LEFT)
 
     def add_input(self):
-        input_frame = Frame(self.window, bg="black")
-        input_frame.pack(side=BOTTOM, fill='x', padx=10, pady=10)
+        input_frame = self.window.frame(padx=10,
+                                        pady=10,
+                                        side=BOTTOM,
+                                        bg='black')
 
-        input_label = Label(input_frame, font=('Helvetica', 18), fg="white", bg="black")
-        input_label.pack(side=LEFT)
+        self.window.label('Digite sua mensagem:',
+                          frame=input_frame,
+                          side=LEFT,
+                          fg='white',
+                          bg='black')
 
-        self.input_entry = Entry(input_frame, font=('Helvetica', 14))
-        self.input_entry.pack(side=LEFT, fill='x', expand=True)
-
+        self.input_entry = self.window.input(frame=input_frame,
+                                             side=LEFT,
+                                             expand=True,
+                                             bg='black',
+                                             fg='white')
         self.input_entry.bind('<Return>', self.on_enter_pressed)
 
     def on_enter_pressed(self, event):
