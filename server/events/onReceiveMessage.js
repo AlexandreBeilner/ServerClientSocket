@@ -1,4 +1,4 @@
-const onReceiveMessage = (socket, connectedClients, data) => {
+const onReceiveMessage = (socket, data) => {
     socket.broadcast.emit('message', data);
 };
 

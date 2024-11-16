@@ -57,7 +57,7 @@ class UI:
         self.start_chat_screen()
         self.connection.start()
 
-    def add_message(self, user, message, color='green'):
+    def add_message(self, user, message, color='green', message_color='white'):
         frame = self.window.frame(bg='black', padx=10, pady=10)
         self.window.label(user + ': ',
                           fg=color,
@@ -65,7 +65,7 @@ class UI:
                           frame=frame,
                           side=LEFT)
         self.window.label(message,
-                          fg='white',
+                          fg=message_color,
                           bg='black',
                           frame=frame,
                           side=LEFT)
@@ -92,10 +92,24 @@ class UI:
     def on_enter_pressed(self, event):
         input_value = self.input_entry.get()
 
+        # if input value starts with / run a command
+        if input_value.startswith('/'):
+            input_value = input_value[1:]
+            self.add_message(self.name,
+                             input_value,
+                             color='blue',
+                             message_color='red')
+            self.send_command(input_value)
+            self.input_entry.delete(0, END)
+            return
+
         if len(input_value) > 0:
-            self.add_message(self.name, input_value, 'blue')
+            self.add_message(self.name, input_value, color='blue')
             self.send_message(input_value)
             self.input_entry.delete(0, END)
 
     def send_message(self, message):
         self.sio.emit('message', {'message': message, 'user': self.name})
+
+    def send_command(self, command):
+        self.sio.emit('command', {'message': command, 'user': self.name})

@@ -18,7 +18,8 @@ npm start
 Then you can run the client
 ```bash
 cd client
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
 python3 client.py
 ```

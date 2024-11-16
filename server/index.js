@@ -4,10 +4,11 @@ const express = require("express");
 const http = require("http");
 
 // Local
-const gatekeeper = require("./middlewares/gatekeeper.js");
-const onConnect = require("./events/onConnect.js");
-const onDisconnect = require("./events/onDisconnect.js");
+const gatekeeper = require("./middlewares/gatekeeper");
+const onConnect = require("./events/onConnect");
+const onDisconnect = require("./events/onDisconnect");
 const onReceiveMessage = require("./events/onReceiveMessage");
+const onCommand = require("./events/onCommand");
 
 class App {
     constructor() {
@@ -38,8 +39,12 @@ class App {
             );
 
             socket.on("message", (data) =>
-                onReceiveMessage(socket, this.connectedClients, data)
+                onReceiveMessage(socket, data)
             );
+
+            socket.on("command", (data) => {
+                onCommand(socket, data);
+            });
         });
     }
 
