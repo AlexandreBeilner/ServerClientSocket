@@ -1,22 +1,19 @@
 import socketio
 from modules.events import Events
 
-
 class Connection:
-    def __init__(self, route, port):
+    def __init__(self, route, port, ui):
         self.sio = socketio.Client()
-
         self.url = f'http://{route}:{port}'
-        self.password = "password"
-
+        self.ui = ui
         self.events()
 
     def events(self):
-        Events(self.sio)
+        Events(self.sio, self.ui)
 
-    def connect(self):
+    def connect(self, user_password):
         try:
-            self.sio.connect(f'{self.url}?token={self.password}')
+            self.sio.connect(f'{self.url}?token={user_password}')
         except Exception as error:
             print(f"Error connecting in the server: {error}")
 
@@ -26,6 +23,5 @@ class Connection:
     def start(self):
         self.sio.wait()
 
-
-if __name__ == '__main__':
-    connection = Connection('localhost', 3000)
+    def get_sio(self):
+        return self.sio

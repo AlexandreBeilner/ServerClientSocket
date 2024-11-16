@@ -7,6 +7,7 @@ const http = require("http");
 const gatekeeper = require("./middlewares/gatekeeper.js");
 const onConnect = require("./events/onConnect.js");
 const onDisconnect = require("./events/onDisconnect.js");
+const onReceiveMessage = require("./events/onReceiveMessage");
 
 class App {
     constructor() {
@@ -34,6 +35,10 @@ class App {
 
             socket.on("disconnect", () =>
                 onDisconnect(socket, this.connectedClients)
+            );
+
+            socket.on("message", (data) =>
+                onReceiveMessage(socket, this.connectedClients, data)
             );
         });
     }

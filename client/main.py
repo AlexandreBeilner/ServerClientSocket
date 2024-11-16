@@ -1,11 +1,8 @@
-from modules.connection import Connection
-
+from modules.ui import UI
 
 def main():
-    connection = Connection('localhost', 3000)
-    connection.connect()
-    connection.start()
-
+    ui = UI()
+    ui.start()
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,7 @@
 const gatekeeper = (socket, next) => {
     const token = socket.handshake.query.token;
 
-    if (token === "password") {
+    if (token) {
         return next();
     }
     return next(new Error("Authentication error"));
