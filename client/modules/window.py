@@ -1,4 +1,13 @@
-from tkinter import Tk, Label, Entry, Button, PhotoImage, Frame
+from tkinter import (
+    Tk,
+    Label,
+    Entry,
+    Button,
+    PhotoImage,
+    Frame,
+    Canvas,
+    Scrollbar
+)
 
 
 class Window:
@@ -44,10 +53,10 @@ class Window:
                           font=font,
                           bg=bg,
                           fg=fg,
-                          relief="flat",  # Remove a borda padrão
-                          highlightthickness=1,  # Adiciona uma borda fina
-                          highlightbackground="#555",  # Cor da borda (quando não focado)
-                          highlightcolor="green")  # Cor da borda ao focar
+                          relief="flat",  # Remove border
+                          highlightthickness=1,  # Thickness
+                          highlightbackground="#555",  # Border color
+                          highlightcolor="green")  # Focus color
             entry.pack(side=side,
                        fill='x',
                        expand=expand,
@@ -86,17 +95,35 @@ class Window:
                         bg=bg,
                         fg=fg)
         if row is not None and column is not None:
-            button.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+            button.grid(row=row,
+                        column=column,
+                        padx=padx,
+                        pady=pady,
+                        sticky=sticky)
         else:
-            button.pack(pady=pady)
+            button.pack(pady=pady, padx=padx)
         return button
 
-    def frame(self, bg="white", fg="black", padx=0, pady=0, row=None, column=None, sticky=None, frame=None, rowspan=1):
+    def frame(self,
+              bg="white",
+              fg="black",
+              padx=0,
+              pady=0,
+              row=None,
+              column=None,
+              sticky=None,
+              frame=None,
+              rowspan=1):
         parent = frame if frame is not None else self.window
         fr = Frame(parent, bg=bg)
 
         if row is not None and column is not None:
-            fr.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky, rowspan=rowspan)
+            fr.grid(row=row,
+                    column=column,
+                    padx=padx,
+                    pady=pady,
+                    sticky=sticky,
+                    rowspan=rowspan)
         else:
             fr.pack(fill="x", padx=padx, pady=pady)
 
@@ -123,8 +150,22 @@ class Window:
     def stop(self):
         self.window.destroy()
 
-    def grid_columnconfigure(self, column, weight):
-        self.window.grid_columnconfigure(column, weight=weight)
+    def grid_columnconfigure(self, column, weight, minsize=0):
+        self.window.grid_columnconfigure(column,
+                                         weight=weight,
+                                         minsize=minsize)
 
-    def grid_rowconfigure(self, row, weight):
-        self.window.grid_rowconfigure(row, weight=weight)
+    def grid_rowconfigure(self, row, weight, minsize=0):
+        self.window.grid_rowconfigure(row,
+                                      weight=weight,
+                                      minsize=minsize)
+
+    def canvas(self, frame, bg='white', side='left', fill='y'):
+        canvas = Canvas(frame, bg=bg)
+        canvas.pack(side=side, fill=fill, expand=True)
+        return canvas
+
+    def scrollbar(self, frame, command, side='right', fill='y'):
+        scrollbar = Scrollbar(frame, command=command)
+        scrollbar.pack(side=side, fill=fill)
+        return scrollbar
