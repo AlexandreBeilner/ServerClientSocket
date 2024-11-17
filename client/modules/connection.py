@@ -12,9 +12,9 @@ class Connection:
     def events(self):
         Events(self.sio, self.ui)
 
-    def connect(self, user_password):
+    def connect(self, user_password, user):
         try:
-            self.sio.connect(f'{self.url}?token={user_password}')
+            self.sio.connect(f'{self.url}?token={user_password}&user={user}')
         except Exception as error:
             print(f"Error connecting in the server: {error}")
 

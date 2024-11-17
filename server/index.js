@@ -9,6 +9,7 @@ const onConnect = require("./events/onConnect");
 const onDisconnect = require("./events/onDisconnect");
 const onReceiveMessage = require("./events/onReceiveMessage");
 const onCommand = require("./events/onCommand");
+const onPrivateMessage = require("./events/onPrivateMessage");
 
 class App {
     constructor() {
@@ -45,6 +46,10 @@ class App {
             socket.on("command", (data) => {
                 onCommand(socket, data);
             });
+
+            socket.on("private_message", (data) => {
+                onPrivateMessage(socket, this.connectedClients, data)
+            })
         });
     }
 
