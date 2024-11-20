@@ -10,10 +10,12 @@ const onDisconnect = require("./events/onDisconnect");
 const onReceiveMessage = require("./events/onReceiveMessage");
 const onCommand = require("./events/onCommand");
 const onPrivateMessage = require("./events/onPrivateMessage");
+const onReceiveVideoFrame = require("./events/onReceiveVideoFrame");
 
 class App {
     constructor() {
         this.connectedClients = {};
+        this.connectedClientsToShowVideo = [];
         this.port = 3000;
 
         this.app = express();
@@ -35,9 +37,13 @@ class App {
         this.io.on("connection", (socket) => {
             onConnect(socket, this.connectedClients);
 
-            socket.on("disconnect", () =>
+            socket.on("disconnect", () => {
                 onDisconnect(socket, this.connectedClients)
-            );
+                let index = this.connectedClientsToShowVideo.indexOf(socket.id);
+                if (index !== -1) {
+                    this.connectedClientsToShowVideo.splice(index, 1);
+                }
+            });
 
             socket.on("message", (data) =>
                 onReceiveMessage(socket, data)
@@ -49,6 +55,21 @@ class App {
 
             socket.on("private_message", (data) => {
                 onPrivateMessage(socket, this.connectedClients, data)
+            })
+
+            socket.on('video_frame', (data) => {
+                onReceiveVideoFrame(socket, this.connectedClientsToShowVideo, this.connectedClients, data)
+            })
+
+            socket.on('video_status', (data) => {
+                if (data.status === 'stop') {
+                    this.connectedClientsToShowVideo = []
+                }
+                socket.broadcast.emit('video_status', data)
+            })
+
+            socket.on('show_video', () => {
+                this.connectedClientsToShowVideo.push(socket.id)
             })
         });
     }

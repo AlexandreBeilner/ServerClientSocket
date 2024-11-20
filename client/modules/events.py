@@ -33,6 +33,14 @@ class Events:
         def private_message(data):
             self.on_private_message(data)
 
+        @self.sio.event
+        def video_frame(data):
+            self.on_receive_video_frame(data)
+
+        @self.sio.event
+        def video_status(data):
+            self.on_receive_video_status(data)
+
     def on_connect(self):
         print("Connected to the server...")
 
@@ -58,3 +66,15 @@ class Events:
 
     def on_private_message(self, data):
         self.ui.add_message(data['user'] + ' (Só você pode ver)', data['message'], '#a62d4f')
+
+    def on_receive_video_frame(self, data):
+        self.ui.video_manager.video_frame = data
+
+    def on_receive_video_status(self, data):
+        if data['status'] == 'online':
+            self.ui.has_video = True
+            self.ui.add_message(data['user'], 'Acabei de abrir uma video chamada, para se conectar digite /connectInCall', '#a62d4f')
+        else:
+            self.ui.has_video = False
+            self.ui.video_manager.stop_render_video()
+            self.ui.add_message(data['user'], 'Acabei de encerrar a video chamada.', '#a62d4f')

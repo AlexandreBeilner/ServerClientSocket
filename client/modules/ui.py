@@ -2,10 +2,13 @@ import os
 from tkinter import LEFT, BOTTOM, END, Label, Scrollbar, Canvas
 from modules.connection import Connection
 from modules.window import Window
+from modules.video import Video
 
 
 class UI:
     def __init__(self):
+        self.video_manager = Video()
+        self.has_video = False
         self.all_chats_id = []
         self.id_active_chat = None
         self.all_chats = []
@@ -122,6 +125,25 @@ class UI:
 
         # if input value starts with / run a command
         if input_value.startswith('/'):
+            if input_value == '/startVideo':
+                self.add_message(self.name, input_value, color='blue')
+                self.send_video_status('online')
+                self.input_entry.delete(0, END)
+                self.video_manager.start(self.sio)
+                return
+            elif input_value == '/stopVideo':
+                self.add_message(self.name, input_value, color='blue')
+                self.send_video_status('offline')
+                self.input_entry.delete(0, END)
+                self.video_manager.stop()
+                return
+            elif input_value == '/connectInCall' and self.has_video:
+                self.sio.emit('show_video')
+                self.input_entry.delete(0, END)
+                self.video_manager.render_video()
+                return
+
+
             input_value = input_value[1:]
             self.add_message(self.name,
                              input_value,
@@ -136,6 +158,9 @@ class UI:
 
     def send_command(self, command):
         self.sio.emit('command', {'message': command, 'user': self.name})
+
+    def send_video_status(self, status):
+        self.sio.emit('video_status', {'status': status, 'user': self.name})
 
     def send_private_message(self, message, send_to):
         self.sio.emit('private_message', {'message': message, 'user': self.name, 'to': send_to})
