@@ -1,5 +1,4 @@
-import os
-from tkinter import LEFT, BOTTOM, END, Label, Scrollbar, Canvas
+from tkinter import LEFT, END
 from modules.connection import Connection
 from modules.window import Window
 from modules.video import Video
@@ -44,26 +43,31 @@ class UI:
         self.window.start()
 
     def start_chat_screen(self):
-        self.window.setup("Chat", "800x600", background='black')
+        self.window.setup("Chat", "800x600", background='#282C34')
 
-        image_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../assets/images.png'))
-        self.window.set_icon(True, image_path)
-
-        self.window.grid_columnconfigure(0, weight=3)
-        self.window.grid_columnconfigure(1, weight=7)
+        self.window.grid_columnconfigure(0, weight=1)
+        self.window.grid_columnconfigure(1, weight=10)
 
         self.window.grid_rowconfigure(0, weight=9)
         self.window.grid_rowconfigure(1, weight=1)
 
-        self.users_frame = self.window.frame(bg='#282C34', row=0, column=0, sticky='nsew', rowspan=2)
+        self.users_frame = self.window.frame(bg='#282C34',
+                                             row=0,
+                                             column=0,
+                                             sticky='nsew',
+                                             rowspan=2)
 
-        chat_container = self.window.frame(bg='#3e495e', row=0, column=1, sticky='nsew')
+        chat_container = self.window.frame(bg='#3e495e',
+                                           row=0,
+                                           column=1,
+                                           sticky='nsew')
 
-        canvas = Canvas(chat_container, bg='#3e495e')
-        canvas.pack(side='left', fill='both', expand=True)
+        canvas = self.window.canvas(frame=chat_container,
+                                    bg='#3e495e',
+                                    fill='both')
 
-        scrollbar = Scrollbar(chat_container, command=canvas.yview)
-        scrollbar.pack(side='right', fill='y')
+        scrollbar = self.window.scrollbar(frame=chat_container,
+                                          command=canvas.yview)
 
         canvas.config(yscrollcommand=scrollbar.set)
 
@@ -92,7 +96,13 @@ class UI:
 
     def add_message(self, user, message, color='green', message_color='white'):
         row = len(self.chat_frame.winfo_children())
-        frame = self.window.frame(bg='#3e495e', padx=10, pady=10, row=row, column=0, sticky='ew', frame=self.chat_frame)
+        frame = self.window.frame(bg='#3e495e',
+                                  padx=10,
+                                  pady=10,
+                                  row=row,
+                                  column=0,
+                                  sticky='ew',
+                                  frame=self.chat_frame)
         self.window.label(user + ': ',
                           fg=color,
                           bg='#3e495e',
@@ -105,23 +115,27 @@ class UI:
                           side=LEFT)
 
     def add_input(self):
-        self.input_frame = self.window.frame(bg='black', row=1, column=1, sticky="ew")
+        self.input_frame = self.window.frame(bg='#282C34',
+                                             row=1,
+                                             padx=20,
+                                             column=1,
+                                             sticky="ew")
 
-        self.window.label('', frame=self.input_frame, side=LEFT, fg='white', bg='black')
+        self.window.label('',
+                          frame=self.input_frame,
+                          side=LEFT,
+                          fg='white',
+                          bg='#282C34')
 
-        self.input_entry = self.window.input(frame=self.input_frame, side=LEFT, expand=True, bg='black', fg='white')
+        self.input_entry = self.window.input(frame=self.input_frame,
+                                             side=LEFT,
+                                             expand=True,
+                                             bg='black',
+                                             fg='white')
         self.input_entry.bind('<Return>', self.on_enter_pressed)
 
     def on_enter_pressed(self, event):
         input_value = self.input_entry.get()
-
-        if len(input_value) > 0:
-            self.add_message(self.name, input_value, color='blue')
-            if self.id_active_chat == 'general':
-                self.send_message(input_value)
-            else:
-                self.send_private_message(input_value, self.id_active_chat)
-            self.input_entry.delete(0, END)
 
         # if input value starts with / run a command
         if input_value.startswith('/'):
@@ -153,6 +167,14 @@ class UI:
             self.input_entry.delete(0, END)
             return
 
+        if len(input_value) > 0:
+            self.add_message(self.name, input_value, color='blue')
+            if self.id_active_chat == 'general':
+                self.send_message(input_value)
+            else:
+                self.send_private_message(input_value, self.id_active_chat)
+            self.input_entry.delete(0, END)
+
     def send_message(self, message):
         self.sio.emit('message', {'message': message, 'user': self.name})
 
@@ -163,7 +185,10 @@ class UI:
         self.sio.emit('video_status', {'status': status, 'user': self.name})
 
     def send_private_message(self, message, send_to):
-        self.sio.emit('private_message', {'message': message, 'user': self.name, 'to': send_to})
+        self.sio.emit('private_message',
+                      {'message': message,
+                       'user': self.name,
+                       'to': send_to})
 
     def add_chat(self, user_name, id):
         row = len(self.all_chats)
@@ -176,13 +201,14 @@ class UI:
             font=('Helvetica', 14, 'bold'),
             row=row,
             column=0,
-            padx=5,
+            padx=2,
             pady=2,
             sticky='ew',
             frame=self.users_frame
         )
 
         chat_button.id = id
+
         self.all_chats.append(chat_button)
         self.all_chats_id.append(id)
 
@@ -190,7 +216,6 @@ class UI:
         chat_id = frame.id
         self.set_active_chat(chat_id)
         self.id_active_chat = chat_id
-
 
     def on_mouse_enter(self, event):
         event.widget.config(cursor="hand2")
